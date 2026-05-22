@@ -7,31 +7,32 @@ import commentRoute from "./routes/commentRoute.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-dotenv.config()
-const app = express()
+dotenv.config();
 
-const PORT = process.env.PORT || 3000
+const app = express();
+
 
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://blogif-mu.vercel.app/"
+      "https://blogif-mu.vercel.app"
     ],
     credentials: true,
   })
 );
 
-app.use("/api/v1/user", userRoute)
-app.use("/api/v1/blog", blogRoute)
-app.use("/api/v1/comment", commentRoute)
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/blog", blogRoute);
+app.use("/api/v1/comment", commentRoute);
 
 app.get("/", (req, res) => {
   res.send("API running");
 });
 
 connectDB();
+export default app;
