@@ -43,14 +43,9 @@ export const createComment = async (req, res) => {
 export const getCommentsOfPost = async (req, res) => {
     try {
         const blogId = req.params.id;
-        const comments = await Comment.find({ postId: blogId })
-            .populate({ path: 'userId', select: 'firstName lastName photoUrl' })
-            .sort({ createdAt: -1 })
-            .lean();
+        const comments = await Comment.find({ postId: blogId }).populate({ path: 'userId', select: 'firstName lastName photoUrl' }).sort({ createdAt: -1 })
 
-        const validComments = comments.filter(comment => comment !== null);
-
-        if (!validComments || validComments.length === 0) {
+        if (!comments || comments.length === 0) {
             return res.status(200).json({
                 success: true,
                 comments: [],
@@ -60,14 +55,10 @@ export const getCommentsOfPost = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            comments: validComments
+            comments
         })
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            success: false,
-            message: 'Error fetching comments'
-        });
     }
 }
 
@@ -104,11 +95,6 @@ export const deleteComment = async (req, res) => {
             $pull: { comments: commentId }
         });
 
-
-        await Blog.findByIdAndUpdate(blogId, {
-            $pull: { comments: null }
-        });
-
         res.status(200).json({ success: true, message: 'Comment deleted Successfully' });
 
     } catch (error) {
@@ -131,7 +117,7 @@ export const editComment = async (req, res) => {
                 }
             );
         }
-        // check if the user owns the comment
+
         if (comment.userId.toString() !== userId) {
             return res.status(403).json(
                 {
@@ -191,7 +177,7 @@ export const likeComment = async (req, res) => {
         await comment.save();
         res.status(200).json({
             success: true,
-            message: alreadyLiked ? "Comment Disliked" : "Comment liked",
+            message: alreadyLiked ? "Comment disliked" : "Comment liked",
             updatedComment: comment,
         });
 

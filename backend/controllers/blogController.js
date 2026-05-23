@@ -93,21 +93,13 @@ export const getOwnBlogs = async (req, res) => {
       path: "author",
       select: "firstName lastName photoUrl",
     });
-
-    const cleanedBlogs = blogs.map(blog => {
-      if (blog.comments) {
-        blog.comments = blog.comments.filter(comment => comment !== null);
-      }
-      return blog;
-    });
-
-    if (!cleanedBlogs) {
+    if (!blogs) {
       return res
         .status(404)
         .json({ message: "No blogs found.", blogs: [], success: false });
     }
 
-    return res.status(200).json({ blogs: cleanedBlogs, success: true });
+    return res.status(200).json({ blogs, success: true });
   } catch (error) {
     res
       .status(500)
@@ -162,14 +154,7 @@ export const getPublishedBlog = async (_, res) => {
         select: "firstName lastName photoUrl",
       });
 
-    const cleanedBlogs = blogs.map(blog => {
-      if (blog.comments) {
-        blog.comments = blog.comments.filter(comment => comment !== null);
-      }
-      return blog;
-    });
-
-    if (!cleanedBlogs) {
+    if (!blogs) {
       return res.status(404).json({
         message: "Blog not found",
       });
@@ -177,7 +162,7 @@ export const getPublishedBlog = async (_, res) => {
 
     return res.status(200).json({
       success: true,
-      blogs: cleanedBlogs,
+      blogs,
     });
   } catch (error) {
     console.log(error);
@@ -249,11 +234,7 @@ export const likeBlog = async (req, res) => {
       $addToSet: { likes: userId },
     });
 
-    let updatedBlog = await Blog.findById(blogId);
-
-    if (updatedBlog && updatedBlog.comments) {
-      updatedBlog.comments = updatedBlog.comments.filter(comment => comment !== null);
-    }
+    const updatedBlog = await Blog.findById(blogId);
 
     return res.status(200).json({
       message: "Blog liked",
@@ -287,11 +268,7 @@ export const dislikeBlog = async (req, res) => {
       $pull: { likes: userId },
     });
 
-    let updatedBlog = await Blog.findById(blogId);
-
-    if (updatedBlog && updatedBlog.comments) {
-      updatedBlog.comments = updatedBlog.comments.filter(comment => comment !== null);
-    }
+    const updatedBlog = await Blog.findById(blogId);
 
     return res.status(200).json({
       message: "Blog disliked",
