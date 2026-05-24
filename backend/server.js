@@ -20,7 +20,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://blogif-mu.vercel.app"
+       "https://blogifypk.vercel.app"
     ],
     credentials: true,
   })
