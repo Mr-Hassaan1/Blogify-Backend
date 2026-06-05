@@ -6,15 +6,16 @@ import { createBlog, deleteBlog, dislikeBlog, getBlogById, getMyTotalBlogLikes, 
 
 const router = express.Router()
 
-router.post("/", isAuthenticated, singleUpload, createBlog);
-router.put("/:blogId", isAuthenticated, singleUpload, updateBlog);
-router.patch("/:blogId", isAuthenticated, togglePublishBlog);
-router.get("/:blogId", getBlogById);
 router.get("/get-own-blogs", isAuthenticated, getOwnBlogs);
-router.delete("/delete/:id", isAuthenticated, deleteBlog);
-router.get("/:id/like", isAuthenticated, likeBlog);
-router.get("/:id/dislike", isAuthenticated, dislikeBlog);
 router.get('/my-blogs/likes', isAuthenticated, getMyTotalBlogLikes);
 router.get("/get-published-blogs", getPublishedBlog);
+router.get("/:blogId", getBlogById);
+router.get("/:id/like", isAuthenticated, likeBlog);
+router.get("/:id/dislike", isAuthenticated, dislikeBlog);
+
+router.post("/", isAuthenticated, singleUpload, createBlog);
+router.put("/:blogId", isAuthenticated, singleUpload, updateBlog);
+router.delete("/delete/:id", isAuthenticated, deleteBlog);
+router.patch("/:blogId", isAuthenticated, togglePublishBlog);
 
 export default router;

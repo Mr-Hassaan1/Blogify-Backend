@@ -63,7 +63,6 @@ export const deleteComment = async (req, res) => {
         const commentId = req.params.id;
         const authorId = req.id
         const comment = await Comment.findById(commentId);
-        console.log(commentId);
 
         if (!comment) {
             return res.status(404).json(
