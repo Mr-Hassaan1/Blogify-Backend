@@ -11,6 +11,7 @@ dotenv.config();
 
 const app = express();
 
+const PORT = process.env.PORT || 3000
 
 app.use(express.json());
 app.use(cookieParser());
@@ -18,10 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-       "https://blogifypk.vercel.app"
-    ],
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -30,9 +28,7 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/blog", blogRoute);
 app.use("/api/v1/comment", commentRoute);
 
-app.get("/", (req, res) => {
-  res.send("API running");
-});
-
-connectDB();
-export default app;
+app.listen(PORT, () => {
+  console.log(`Server listen at port ${PORT}`);
+  connectDB();
+})
