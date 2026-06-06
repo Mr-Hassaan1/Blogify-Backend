@@ -31,10 +31,18 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/blog", blogRoute);
 app.use("/api/v1/comment", commentRoute);
 
-connectDB();
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server listening at port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server because the database connection failed.");
+    process.exit(1);
+  }
+};
 
-app.listen(PORT, () => {
-  console.log(`Server listening at port ${PORT}`);
-});
+startServer();
 
 export default app;
