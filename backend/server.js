@@ -17,13 +17,26 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://blogifypk.vercel.app",
+  "https://www.blogifypk.vercel.app",
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://blogifypk.vercel.app",
-    ],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -34,12 +47,17 @@ app.use("/api/v1/comment", commentRoute);
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server listening at port ${PORT}`);
-    });
+
+    if (!process.env.VERCEL) {
+      app.listen(PORT, () => {
+        console.log(`Server listening at port ${PORT}`);
+      });
+    }
   } catch (error) {
     console.error("Failed to start server because the database connection failed.");
-    process.exit(1);
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   }
 };
 
