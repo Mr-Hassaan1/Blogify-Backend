@@ -55,19 +55,19 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    if (!process.env.VERCEL) {
-      app.listen(PORT, () => {
-        console.log(`Server listening at port ${PORT}`);
-      });
-    }
+    app.listen(PORT, () => {
+      console.log(`Server listening at port ${PORT}`);
+    });
   } catch (error) {
-    console.error("Failed to start server because the database connection failed.");
-    if (!process.env.VERCEL) {
-      process.exit(1);
-    }
+    console.error("Failed to start server because the database connection failed.", error.message || error);
+    process.exit(1);
   }
 };
 
-startServer();
+if (process.env.VERCEL) {
+  await connectDB();
+} else {
+  startServer();
+}
 
 export default app;

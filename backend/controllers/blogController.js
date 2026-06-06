@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import connectDB from "../database/db.js";
 import { Blog } from "../models/blogModel.js";
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/dataUri.js";
@@ -168,12 +169,7 @@ export const getBlogById = async (req, res) => {
 
 export const getPublishedBlog = async (_, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({
-        success: false,
-        message: "Database is unavailable right now. Please try again later.",
-      });
-    }
+    await connectDB();
 
     const blogs = await Blog.find({
       isPublished: true,
