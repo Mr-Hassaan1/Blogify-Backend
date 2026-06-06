@@ -17,12 +17,19 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-const allowedOrigins = [
+const defaultAllowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://blogifypk.vercel.app",
   "https://www.blogifypk.vercel.app",
 ];
+
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+  .concat(defaultAllowedOrigins)
+  .filter((origin, index, array) => array.indexOf(origin) === index);
 
 app.use(
   cors({
