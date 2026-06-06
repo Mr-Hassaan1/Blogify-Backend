@@ -137,7 +137,8 @@ export const logout = async (_, res) => {
         return res.status(200).cookie("token", "", {
             maxAge: 0,
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: "none",
+            secure: true,
             path: "/"
         }).json({
             success: true,
