@@ -28,7 +28,10 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/blog", blogRoute);
 app.use("/api/v1/comment", commentRoute);
 
+connectDB();
+
 app.listen(PORT, () => {
-  console.log(`Server listen at port ${PORT}`);
-  connectDB();
-})
+  console.log(`Server listening at port ${PORT}`);
+});
+
+export default app;
