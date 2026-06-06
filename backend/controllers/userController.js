@@ -99,6 +99,7 @@ export const login = async (req, res) => {
             .json({
                 success: true,
                 message: `Welcome ${user.firstName}`,
+                token,
                 user
             }
             )
