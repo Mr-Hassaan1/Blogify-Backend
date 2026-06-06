@@ -8,13 +8,7 @@ export const createComment = async (req, res) => {
         const { content } = req.body;
 
         const blog = await Blog.findById(postId);
-        if (!content) {
-            return res.status(400).json(
-                {
-                    message: 'text is required', success: false
-                }
-            );
-        }
+        if (!blog) return res.status(404).json({ message: 'Blog not found', success: false });
 
         const comment = await Comment.create({
             content,
@@ -36,7 +30,8 @@ export const createComment = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 }
 
@@ -58,7 +53,8 @@ export const getCommentsOfPost = async (req, res) => {
             comments
         })
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 }
 
@@ -67,7 +63,6 @@ export const deleteComment = async (req, res) => {
         const commentId = req.params.id;
         const authorId = req.id
         const comment = await Comment.findById(commentId);
-        console.log(commentId);
 
         if (!comment) {
             return res.status(404).json(
@@ -163,22 +158,18 @@ export const likeComment = async (req, res) => {
             return res.status(404).json({ success: false, message: "Comment not found" });
         }
 
-        const alreadyLiked = comment.likes.includes(userId);
+        const alreadyLiked = comment.likes.some(id => id.toString() === userId);
 
-        if (alreadyLiked) {
+        await Comment.findByIdAndUpdate(commentId, alreadyLiked
+            ? { $pull: { likes: userId }, $inc: { numberOfLikes: -1 } }
+            : { $addToSet: { likes: userId }, $inc: { numberOfLikes: 1 } }
+        );
 
-            comment.likes = comment.likes.filter(id => id !== userId);
-            comment.numberOfLikes -= 1;
-        } else {
-
-            comment.likes.push(userId);
-            comment.numberOfLikes += 1;
-        }
-        await comment.save();
+        const updatedComment = await Comment.findById(commentId).populate("userId");
         res.status(200).json({
             success: true,
             message: alreadyLiked ? "Comment disliked" : "Comment liked",
-            updatedComment: comment,
+            updatedComment,
         });
 
     } catch (error) {

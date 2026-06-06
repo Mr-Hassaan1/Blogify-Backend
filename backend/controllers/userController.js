@@ -36,12 +36,6 @@ export const register = async (req, res) => {
             return res.status(400).json({ success: false, message: "Email already exists" });
         }
 
-        // const existingUserByUsername = await User.findOne({ userName: userName });
-
-        // if (existingUserByUsername) {
-        //     return res.status(400).json({ success: false, message: "Username already exists" });
-        // }
-
         const hashedPassword = await bcrypt.hash(password, 10);
 
         await User.create({
@@ -69,7 +63,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        if (!email && !password) {
+        if (!email || !password) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -93,19 +87,11 @@ export const login = async (req, res) => {
         }
 
         const token = await jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1d' })
-        return res
-            .status(200)
-            .cookie("token", token, {
-                maxAge: 1 * 24 * 60 * 60 * 1000,
-                httpOnly: true,
-                secure: true,
-                sameSite: "none",
-            })
-            .json({
-                success: true,
-                message: `Welcome ${user.firstName}`,
-                user,
-            });
+        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: "strict" }).json({
+            success: true,
+            message: `Welcome ${user.firstName}`,
+            user
+        })
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -116,20 +102,38 @@ export const login = async (req, res) => {
 
 }
 
+export const getCurrentUser = async (req, res) => {
+    try {
+        const userId = req.id;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "User not authenticated" });
+        }
+
+        const user = await User.findById(userId).select("-password");
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        return res.status(200).json({ success: true, user });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: "Failed to load user" });
+    }
+};
+
 export const logout = async (_, res) => {
     try {
-        return res
-            .status(200)
-            .cookie("token", "", {
-                maxAge: 0,
-                httpOnly: true,
-                secure: true,
-                sameSite: "none",
-            })
-            .json({
-                success: true,
-                message: "Logged out successfully.",
-            });
+        return res.status(200).cookie("token", "", {
+            maxAge: 0,
+            httpOnly: true,
+            sameSite: "strict",
+            path: "/"
+        }).json({
+            success: true,
+            message: "Logged out successfully."
+        })
     } catch (error) {
         console.log(error);
     }
@@ -185,7 +189,7 @@ export const updateProfile = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().select('-password'); // exclude password field
+        const users = await User.find().select('-password');
         res.status(200).json({
             success: true,
             message: "User list fetched successfully",

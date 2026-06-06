@@ -60,9 +60,11 @@ export const updateBlog = async (req, res) => {
       subtitle,
       description,
       category,
-      author: req.id,
-      thumbnail: thumbnail?.secure_url,
     };
+
+    if (file && thumbnail?.secure_url) {
+      updateData.thumbnail = thumbnail.secure_url;
+    }
     if (typeof isPublished !== "undefined") {
       updateData.isPublished = isPublished === "true" || isPublished === true;
     }
@@ -138,6 +140,28 @@ export const deleteBlog = async (req, res) => {
       message: "Error deleting blog",
       error: error.message,
     });
+  }
+};
+
+export const getBlogById = async (req, res) => {
+  try {
+    const { blogId } = req.params;
+
+    const blog = await Blog.findById(blogId)
+      .populate({
+        path: "author",
+        select: "firstName lastName photoUrl occupation",
+      })
+      .lean();
+
+    if (!blog) {
+      return res.status(404).json({ success: false, message: "Blog not found" });
+    }
+
+    return res.status(200).json({ success: true, blog });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: "Failed to fetch blog" });
   }
 };
 

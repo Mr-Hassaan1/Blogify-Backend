@@ -1,5 +1,5 @@
 import express from "express"
-import {getAllUsers, login, logout, register, updateProfile} from "../controllers/userController.js"
+import {getAllUsers, getCurrentUser, login, logout, register, updateProfile} from "../controllers/userController.js"
 import { isAuthenticated } from "../middleware/isAuthenticated.js"
 import { singleUpload } from "../middleware/multer.js"
 
@@ -7,6 +7,7 @@ const router = express.Router()
 
 router.route("/register").post(register)
 router.route("/login").post(login)
+router.route("/me").get(isAuthenticated, getCurrentUser)
 router.route("/logout").get(logout)
 router.route("/profile/update").put(isAuthenticated, singleUpload, updateProfile)
 router.get('/all-users', getAllUsers);
