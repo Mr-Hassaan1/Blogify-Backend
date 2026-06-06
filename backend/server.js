@@ -19,7 +19,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https://blogifypk.vercel.app",
+    origin: [
+      "http://localhost:5173",
+      "https://blogifypk.vercel.app",
+    ],
     credentials: true,
   })
 );
