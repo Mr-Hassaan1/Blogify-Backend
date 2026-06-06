@@ -87,11 +87,20 @@ export const login = async (req, res) => {
         }
 
         const token = await jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1d' })
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: "strict" }).json({
-            success: true,
-            message: `Welcome ${user.firstName}`,
-            user
-        })
+        return res
+            .status(200)
+            .cookie("token", token, {
+                maxAge: 1 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                sameSite: "none",
+                secure: true,
+            })
+            .json({
+                success: true,
+                message: `Welcome ${user.firstName}`,
+                user
+            }
+            )
     } catch (error) {
         console.log(error);
         return res.status(500).json({
